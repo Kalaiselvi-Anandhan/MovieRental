@@ -1,17 +1,17 @@
-var mysql = require("mysql");
+var Sequelize = require("sequelize");
 
-var connection = mysql.createConnection({
-    host:"localhost",
-    user:"root",
-    password:""
+const sequelize = new Sequelize("", "root", "", {
+    dialect:"mysql",
+    operatorsAliases:false,
+    define:{
+        timestamps:false
+    }
 });
 
-connection.connect(function(err){
-    if(err) throw err;
-    connection.query("CREATE DATABASE IF NOT EXISTS dummy1",function(err,result){
-        if(err) throw err;
-        console.log("db created");
-    });
+sequelize.query("CREATE DATABASE IF NOT EXISTS sampledb;").then(data=>{
+    console.log("db created...");
+    console.log(data);
+
 });
 
-module.exports = connection;
+module.exports = sequelize;

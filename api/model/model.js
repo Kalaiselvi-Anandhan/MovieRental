@@ -1,14 +1,14 @@
-var sqlcon = require('./database.js');
-var mysql = require("mysql"); 
-var sql = mysql.createConnection({
-    host : "localhost",
-    user : "root",
-    password : "",
-    database : "dummy1"
+const Sequelize = require("sequelize");
+const Table = require("./database.js");
+
+const connection = new Sequelize("sampledb", "root", "", {
+    dialect:"mysql",
+    operatorsAliases:false,
+    define:{
+        timestamps:false
+    }
 });
 
-
-//Object Constructor for creating many objects of same type
 var Movie = function(movie){
     this.Rank = movie.Rank;
     this.Title = movie.Title;
@@ -24,104 +24,54 @@ var Movie = function(movie){
     this.Year = movie.Year;
 };
 
-
 Movie.createMovie = function(newMovie, result){
-    sql.query("INSERT INTO movies SET ?", newMovie, function(err, res){
-        if(err){
-            console.log("error:",err);
-            result(err,null);
-        }
-        else{
+    Table.create(newMovie).then(function(res){
             console.log(res.insertId);
             result(null,res.insertId);
-        }
     });
 };
 
 Movie.getMovieById = function(movieid,result){
-    sql.query("SELECT Title FROM movies WHERE Rank = ?", movieid, function(err,res){
-        if(err){
-            console.log("error:",err);
-            result(err,null);
-        }
-        else{
+    Table.findAll({attributes:["Title"],where:{Rank:movieid},raw:true}).then(function(res){
             result(null,res);
-        }
     });
 };
+
 Movie.getAllMovies = function(result){
-    sql.query("SELECT Title FROM movies", function(err, res){
-        if(err){
-            console.log("error:",err);
-            result(err,null);
-        }
-        else{
-            console.log("Movies:",res);
+    Table.findAll({attributes:["Title"],raw:true}).then(function(res){
             console.log("Movie constructor",Movie);
             result(null,res);
-        }
     });
 };
 
 Movie.updateMovieById = function(rank,movie,result){
-    sql.query("UPDATE movies SET Title = ? WHERE Rank = ?", [movie.Title,rank], function(err,res){
-        if(err){
-            console.log("error",err);
-            result(null,err);
-        }
-        else{
+    Table.update({Title:movie.Title},{where:{Rank:rank}}).then(function(res){
             result(null,res);
-        }
     });
 };
 
 Movie.removeRowById = function(rank,result){
-    sql.query("DELETE FROM movies WHERE Rank = ?",rank,function(err,res){
-        if(err){
-            console.log("error:",err);;
-            result(null,err);
-        }
-        else{
+    Table.destroy({where:{Rank:rank},raw:true}).then(function(res){
             result(null,res);
-        }
     })
 }
 
 Movie.getAllDirectors = function(result){
-    sql.query("SELECT Director FROM movies", function(err, res){
-        if(err){
-            console.log("error:",err);
-            result(err,null);
-        }
-        else{
-            console.log("Movies:",res);
+    Table.findAll({attributes:["Director"],raw:true}).then(function(res){
             console.log("Movie constructor",Movie);
             result(null,res);
-        }
     });
 };
 
 Movie.getDirectorById = function(rank,result){
-    sql.query("SELECT Director FROM movies WHERE Rank = ?", rank, function(err,res){
-        if(err){
-            console.log("error:",err);
-            result(err,null);
-        }
-        else{
-            result(null,res);
-        }
+    Table.findAll({attributes:["Director"],where:{Rank:rank},raw:true}).then(function(res){
+        result(null,res);
     });
 };
 
 Movie.updateDirectorById = function(rank,movie,result){
-    sql.query("UPDATE movies SET Director = ? WHERE Rank = ?", [movie.Director,rank], function(err,res){
-        if(err){
-            console.log("error",err);
-            result(null,err);
-        }
-        else{
+    Table.update({Director:movie.Director},{where:{Rank:rank}}).then(function(res){
             result(null,res);
-        }
     });
 };
 
